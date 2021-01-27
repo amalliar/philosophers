@@ -6,71 +6,110 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/01/23 11:30:01 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/19 02:46:24 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "philo_one.h"
 
-typedef struct		s_run_opts
+void			*philo_start(void *arg)
 {
-	int				num_philos;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				num_eat_cycles;
-}					t_run_opts;
+	t_philo_status	*philo_status;
+	t_sim_data		*sim_data;
 
-int				check_args(int argc, char **argv)
+	philo_status = (t_philo_status *)arg;
+	sim_data = (t_sim_data *)philo_status->sim_data;
+	while (1)
+	{
+		srand(time(NULL));
+		usleep(1000000);
+		pthread_mutex_lock(&sim_data->mtx_stdout_normal);
+		struct timeval	cur_time;
+		gettimeofday(&cur_time, NULL);
+		printf("%f %d says hello!\n", (float)(cur_time.tv_usec - (sim_data->tv_sim_start).tv_usec) / 1000, philo_status->id);
+		pthread_mutex_unlock(&sim_data->mtx_stdout_normal);
+		// get right fork (random OR philo_id % 2 to avoid dead locks)
+		// check if dead
+		// get left fork
+		// check if dead
+		// eat
+		// --num_eat_cycles_remaining
+		// release forks
+		// sleep
+		// check if dead
+		// think
+		// check if dead
+	}
+}
+
+int				start_threads(t_sim_data *sim_data)
 {
 	int		i;
-	char	*cur_arg;
 
-	if (argc < 5 || argc > 6)
+	i = 0;
+	while (i < sim_data->run_opts->num_philos)
 	{
-		printf("%s: Invalid number of arguments\n", argv[0]);
-		return (1);
-	}
-	i = 1;
-	while (i < argc)
-	{
-		cur_arg = argv[i];
-		while (*cur_arg)
-			if (!ft_strchr("0123456789", *cur_arg++))
-			{
-				printf("%s: Invalid argument format\n", argv[0]);
-				return (1);
-			}
+		if (pthread_create(&sim_data->threads[i], NULL, philo_start, &sim_data->philo_stat_tab[i]))
+			return (1);
 		++i;
 	}
 	return (0);
 }
 
-t_run_opts		*parse_args(int argc, char **argv)
-{
-	t_run_opts		*run_opts;
 
-	if (check_args(argc, argv))
-		return (NULL);
-	if (!(run_opts = malloc(sizeof(t_run_opts))))
-		return (NULL);
-	run_opts->num_philos = ft_atoi(argv[1]);
-	run_opts->time_to_die = ft_atoi(argv[2]);
-	run_opts->time_to_eat = ft_atoi(argv[3]);
-	run_opts->time_to_sleep = ft_atoi(argv[4]);
-	run_opts->num_eat_cycles = (argc == 6) ? ft_atoi(argv[5]) : 0;
-	return (run_opts);
+int				init_sim_data(t_sim_data *sim_data)
+{
+	int			i;
+
+	// Allocate resources.
+	i = sim_data->run_opts->num_philos;
+	if (!(sim_data->philo_stat_tab = malloc(i * sizeof(t_philo_status))) || \
+		!(sim_data->threads = malloc(i * sizeof(pthread_t))) || \
+		!(sim_data->mtx_forks = malloc(i * sizeof(pthread_mutex_t))))
+		return (1);
+
+	gettimeofday(&sim_data->tv_sim_start, NULL);
+	sim_data->sim_is_running = 1;
+
+	// Init philo_stat_tab.
+	i = 0;
+	while (i < sim_data->run_opts->num_philos)
+	{
+		(sim_data->philo_stat_tab)[i].id = i + 1;
+		(sim_data->philo_stat_tab)[i].cur_eat_cycles = 0;
+		(sim_data->philo_stat_tab)[i].tv_last_time_eaten = sim_data->tv_sim_start;
+		(sim_data->philo_stat_tab)[i].sim_data = sim_data;
+		++i;
+	}
+
+	// Init mutexes.
+	if (pthread_mutex_init(&sim_data->mtx_stdout_normal, NULL) || \
+		pthread_mutex_init(&sim_data->mtx_stdout_priority, NULL))
+		return (1);
+	i = 0;
+	while (i < sim_data->run_opts->num_philos)
+	{
+		if (pthread_mutex_init(sim_data->mtx_forks + i, NULL))
+			return (1);
+		++i;
+	}
+
+	return (0);
 }
 
 int				main(int argc, char **argv)
 {
-	t_run_opts		*run_opts;
+	int				i;
+	t_sim_data		sim_data;
 
-	if (!(run_opts = parse_args(argc, argv)))
+	if (!(sim_data.run_opts = parse_args(argc, argv)) || \
+		init_sim_data(&sim_data) || \
+		start_threads(&sim_data))
 		return (1);
+	i = 0;
+	while (i < sim_data.run_opts->num_philos)
+		pthread_join((sim_data.threads)[i++], NULL);
+
+	// Do cleanup.
 	return (0);
 }
