@@ -6,39 +6,129 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/19 02:46:24 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/23 12:34:14 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_one.h"
 
+uint64_t		get_ms_time(void)
+{
+	struct timeval		cur;
+
+	gettimeofday(&cur, NULL);
+	return ((uint64_t)cur.tv_sec * 1000 + cur.tv_usec / 1000);
+}
+
+int				philo_is_dead(t_philo_status *philo_status)
+{
+	t_sim_data		*sim_data;
+
+	sim_data = (t_sim_data *)philo_status->sim_data;
+	if (get_ms_time() - philo_status->last_time_eaten >= sim_data->run_opts->time_to_die)
+	{
+		pthread_mutex_lock(&sim_data->mtx_stdout_priority);
+		if (sim_data->sim_is_running)
+		{
+			sim_data->sim_is_running = 0;
+			pthread_mutex_lock(&sim_data->mtx_stdout_normal);
+			printf("%-8llu %d died\n", get_ms_time() - sim_data->sim_start, philo_status->id);
+			pthread_mutex_unlock(&sim_data->mtx_stdout_normal);
+		}
+		pthread_mutex_unlock(&sim_data->mtx_stdout_priority);
+		return (1);
+	}
+	return (0);
+}
+
 void			*philo_start(void *arg)
 {
 	t_philo_status	*philo_status;
 	t_sim_data		*sim_data;
+	int64_t			time_to_live;
+	int				state_changed;
 
 	philo_status = (t_philo_status *)arg;
 	sim_data = (t_sim_data *)philo_status->sim_data;
+	state_changed = 1;
 	while (1)
 	{
-		srand(time(NULL));
-		usleep(1000000);
+		if (state_changed)
+		{
+			pthread_mutex_lock(&sim_data->mtx_stdout_normal);
+			if (sim_data->sim_is_running)
+				printf("%-8llu %d is thinking\n", get_ms_time() - sim_data->sim_start, philo_status->id);
+			pthread_mutex_unlock(&sim_data->mtx_stdout_normal);
+			state_changed = 0;
+		}
+		time_to_live = sim_data->run_opts->time_to_die - get_ms_time() + philo_status->last_time_eaten;
+		if (time_to_live <= 0)
+		{
+			philo_is_dead(philo_status);
+			return (NULL);
+		}
+		usleep(time_to_live * 500);  // the less is 'time_to_live' - the shorter the wait
+
+		// Even philos take the right fork first, odd philos - the left one.
+		if (pthread_mutex_lock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+			philo_status->left_fork_idx : philo_status->right_fork_idx]))
+			continue ;
+		if (!sim_data->sim_is_running || philo_is_dead(philo_status))
+		{
+			pthread_mutex_unlock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+				philo_status->left_fork_idx : philo_status->right_fork_idx]);
+			return (NULL);
+		}
 		pthread_mutex_lock(&sim_data->mtx_stdout_normal);
-		struct timeval	cur_time;
-		gettimeofday(&cur_time, NULL);
-		printf("%f %d says hello!\n", (float)(cur_time.tv_usec - (sim_data->tv_sim_start).tv_usec) / 1000, philo_status->id);
+		if (sim_data->sim_is_running)
+			printf("%-8llu %d has taken a fork\n", get_ms_time() - sim_data->sim_start, philo_status->id);
 		pthread_mutex_unlock(&sim_data->mtx_stdout_normal);
-		// get right fork (random OR philo_id % 2 to avoid dead locks)
-		// check if dead
-		// get left fork
-		// check if dead
-		// eat
-		// --num_eat_cycles_remaining
-		// release forks
-		// sleep
-		// check if dead
-		// think
-		// check if dead
+		state_changed = 1;
+
+		if (pthread_mutex_lock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+			philo_status->right_fork_idx : philo_status->left_fork_idx]))
+		{
+			pthread_mutex_unlock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+				philo_status->left_fork_idx : philo_status->right_fork_idx]);
+			continue ;
+		}
+		if (!sim_data->sim_is_running || philo_is_dead(philo_status))
+		{
+			pthread_mutex_unlock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+				philo_status->right_fork_idx : philo_status->left_fork_idx]);
+			pthread_mutex_unlock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+			philo_status->left_fork_idx : philo_status->right_fork_idx]);
+			return (NULL);
+		}
+		pthread_mutex_lock(&sim_data->mtx_stdout_normal);
+		if (sim_data->sim_is_running)
+			printf("%-8llu %d has taken a fork\n", get_ms_time() - sim_data->sim_start, philo_status->id);
+		if (sim_data->sim_is_running)
+			printf("%-8llu %d is eating\n", get_ms_time() - sim_data->sim_start, philo_status->id);
+		pthread_mutex_unlock(&sim_data->mtx_stdout_normal);
+		usleep(sim_data->run_opts->time_to_eat * 1000);
+		pthread_mutex_unlock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+				philo_status->right_fork_idx : philo_status->left_fork_idx]);
+		pthread_mutex_unlock(&sim_data->mtx_forks[(philo_status->id % 2) ? \
+			philo_status->left_fork_idx : philo_status->right_fork_idx]);
+		philo_status->last_time_eaten = get_ms_time();
+		++philo_status->cur_eat_cycles;
+		if (philo_status->cur_eat_cycles == sim_data->run_opts->num_eat_cycles)
+			--sim_data->unfinished_philos;
+		if (sim_data->unfinished_philos == 0)
+		{
+			sim_data->sim_is_running = 0;
+			return (NULL);
+		}
+		if (!sim_data->sim_is_running)
+			return (NULL);
+		pthread_mutex_lock(&sim_data->mtx_stdout_normal);
+		if (sim_data->sim_is_running)
+			printf("%-8llu %d is sleeping\n", get_ms_time() - sim_data->sim_start, philo_status->id);
+		pthread_mutex_unlock(&sim_data->mtx_stdout_normal);
+		usleep(sim_data->run_opts->time_to_sleep * 1000);
+		if (!sim_data->sim_is_running || philo_is_dead(philo_status))
+			return (NULL);
 	}
 }
 
@@ -68,16 +158,19 @@ int				init_sim_data(t_sim_data *sim_data)
 		!(sim_data->mtx_forks = malloc(i * sizeof(pthread_mutex_t))))
 		return (1);
 
-	gettimeofday(&sim_data->tv_sim_start, NULL);
+	sim_data->sim_start = get_ms_time();
 	sim_data->sim_is_running = 1;
+	sim_data->unfinished_philos = sim_data->run_opts->num_philos;
 
 	// Init philo_stat_tab.
 	i = 0;
 	while (i < sim_data->run_opts->num_philos)
 	{
 		(sim_data->philo_stat_tab)[i].id = i + 1;
+		(sim_data->philo_stat_tab)[i].left_fork_idx = i;
+		(sim_data->philo_stat_tab)[i].right_fork_idx = (i == 0) ? sim_data->run_opts->num_philos - 1 : i - 1;
 		(sim_data->philo_stat_tab)[i].cur_eat_cycles = 0;
-		(sim_data->philo_stat_tab)[i].tv_last_time_eaten = sim_data->tv_sim_start;
+		(sim_data->philo_stat_tab)[i].last_time_eaten = sim_data->sim_start;
 		(sim_data->philo_stat_tab)[i].sim_data = sim_data;
 		++i;
 	}
@@ -108,8 +201,8 @@ int				main(int argc, char **argv)
 		return (1);
 	i = 0;
 	while (i < sim_data.run_opts->num_philos)
-		pthread_join((sim_data.threads)[i++], NULL);
+		pthread_join(sim_data.threads[i++], NULL);
 
-	// Do cleanup.
+	// Do cleanup if necessery.
 	return (0);
 }

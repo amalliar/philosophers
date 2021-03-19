@@ -54,3 +54,6 @@ dkms.conf
 # ctags files
 tags
 .tags
+
+# vim swp files
+*.swp
