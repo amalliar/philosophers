@@ -6,21 +6,26 @@
 #    By: amalliar <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/09 23:55:29 by amalliar          #+#    #+#              #
-#    Updated: 2021/01/23 08:19:18 by amalliar         ###   ########.fr        #
+#    Updated: 2021/03/23 17:41:29 by amalliar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SHELL      := /bin/sh
 CC         := clang
-CFLAGS     := -fdiagnostics-color -g -pipe
-              #-march=native -O2 -flto
+CFLAGS     := -Wall -Wextra -fdiagnostics-color -g -pipe \
+              -march=native -O2 -flto
 INCLUDE    := -I./include
+LIBS       := -lpthread
 NAME       := philo_two
 SRCDIR     := src
 OBJDIR     := .obj
 DEPDIR     := .dep
 
-SRCS       := main.c
+SRCS       := main.c \
+              philo.c \
+              philo_2.c \
+              utils.c \
+              utils_2.c
 SRCS       := $(addprefix src/, $(SRCS))
 OBJS       := $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 DEPS       := $(SRCS:$(SRCDIR)/%.c=$(DEPDIR)/%.d)
@@ -39,9 +44,9 @@ NOC        := \033[0m
 
 all: $(NAME)
 $(NAME): $(OBJS)
-	@echo -e "$(LGREEN)Linking executable $(NAME)$(NOC)"
-	$(CC) $(CFLAGS) $(INCLUDE) $(OBJS) -o $@
-	@echo -e "Built target $(NAME)"
+	@echo "$(LGREEN)Linking executable $(NAME)$(NOC)"
+	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $@
+	@echo "Built target $(NAME)"
 .PHONY: all
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPDIR)/%.d | $(OBJDIR) $(DEPDIR)
@@ -55,14 +60,14 @@ $(DEPDIR)/%.d: ;
 .PRECIOUS: $(DEPDIR)/%.d
 
 clean:
-	@echo -e "$(WHITE)Removing C object files...$(NOC)"
+	@echo "$(WHITE)Removing C object files...$(NOC)"
 	@-rm -rf $(OBJDIR)
-	@echo -e "$(WHITE)Removing make dependency files...$(NOC)"
+	@echo "$(WHITE)Removing make dependency files...$(NOC)"
 	@-rm -rf $(DEPDIR)
 .PHONY: clean
 
 fclean: clean
-	@echo -e "$(WHITE)Removing executable $(NAME)$(NOC)"
+	@echo "$(WHITE)Removing executable $(NAME)$(NOC)"
 	@-rm -f $(NAME)
 .PHONY: fclean
 
