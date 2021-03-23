@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 11:20:20 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/23 13:23:18 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/23 16:33:00 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@
 # include <limits.h>
 # include <stdint.h>
 # include <sys/time.h>
+
+enum				e_fork_states
+{
+	TAKEN,
+	AVAILABLE
+};
 
 typedef struct		s_philo_status
 {
@@ -43,20 +49,28 @@ typedef struct		s_sim_data
 	int				time_to_sleep;
 	int				num_eat_cycles;
 	int				unfinished_philos;
+	int				*forks;
 	t_philo_status	*philo_stat_tab;
 	pthread_t		*threads;
-	pthread_mutex_t	*mtx_forks;
+	pthread_mutex_t	mtx_forks;
 	pthread_mutex_t	mtx_stdout_normal;
 	pthread_mutex_t	mtx_stdout_priority;
 }					t_sim_data;
 
 char				*ft_strchr(const char *str, int c);
 int					ft_atoi(const char *str);
-int					check_args(int argc, char **argv);
-int					parse_args(int argc, char **argv, t_sim_data *sim_data);
-uint64_t			get_timestamp(void);
 int					init_sim_data(t_sim_data *sim_data);
-void				clear_sim_data(t_sim_data *sim_data);
+int					parse_args(int argc, char **argv, t_sim_data *sim_data);
+int					philo_check_health(t_philo_status *philo_status);
+int					philo_eat(t_philo_status *philo_status);
+int					philo_sleep(t_philo_status *philo_status);
+int					philo_take_forks(t_philo_status *philo_status);
+int					philo_think(t_philo_status *philo_status);
+uint64_t			get_timestamp(void);
 void				*philo_start(void *arg);
+void				clear_sim_data(t_sim_data *sim_data);
+void				init_philo_stat_tab(t_sim_data *sim_data);
+void				philo_release_forks(t_philo_status *philo_status);
+void				print_status(t_philo_status *philo_status, const char *msg);
 
 #endif

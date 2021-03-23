@@ -6,14 +6,14 @@
 #    By: amalliar <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/09 23:55:29 by amalliar          #+#    #+#              #
-#    Updated: 2021/03/23 14:30:04 by amalliar         ###   ########.fr        #
+#    Updated: 2021/03/23 16:34:13 by amalliar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SHELL      := /bin/sh
 CC         := clang
-CFLAGS     := -fdiagnostics-color -g -pipe
-              #-march=native -O2 -flto
+CFLAGS     := -Wall -Wextra -fdiagnostics-color -g -pipe \
+              -march=native -O2 -flto
 INCLUDE    := -I./include
 LIBS       := -lpthread
 NAME       := philo_one
@@ -23,7 +23,9 @@ DEPDIR     := .dep
 
 SRCS       := main.c \
               philo.c \
-              utils.c
+              philo_2.c \
+              utils.c \
+              utils_2.c
 SRCS       := $(addprefix src/, $(SRCS))
 OBJS       := $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 DEPS       := $(SRCS:$(SRCDIR)/%.c=$(DEPDIR)/%.d)
