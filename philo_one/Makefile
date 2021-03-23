@@ -6,7 +6,7 @@
 #    By: amalliar <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/09 23:55:29 by amalliar          #+#    #+#              #
-#    Updated: 2021/01/27 18:00:46 by amalliar         ###   ########.fr        #
+#    Updated: 2021/03/23 14:30:04 by amalliar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ OBJDIR     := .obj
 DEPDIR     := .dep
 
 SRCS       := main.c \
+              philo.c \
               utils.c
 SRCS       := $(addprefix src/, $(SRCS))
 OBJS       := $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
