@@ -6,11 +6,11 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 13:22:36 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/24 11:49:38 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_two.h"
 
 int				start_threads(t_sim_data *sim_data)
 {

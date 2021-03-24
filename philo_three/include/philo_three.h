@@ -1,39 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_one.h                                        :+:      :+:    :+:   */
+/*   philo_three.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 11:20:20 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 13:35:34 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/24 17:05:43 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_ONE_H
-# define PHILO_ONE_H
+#ifndef PHILO_THREE_H
+# define PHILO_THREE_H
 
 # include <string.h>
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
 # include <pthread.h>
+# include <semaphore.h>
+# include <fcntl.h>
 # include <stddef.h>
 # include <limits.h>
 # include <stdint.h>
 # include <sys/time.h>
 
-enum				e_fork_states
-{
-	TAKEN,
-	AVAILABLE
-};
-
 typedef struct		s_philo_status
 {
 	int				id;
-	int				left_fork_idx;
-	int				right_fork_idx;
 	int				cur_eat_cycles;
 	uint64_t		last_time_eaten;
 	void			*sim_data;
@@ -42,19 +36,23 @@ typedef struct		s_philo_status
 typedef struct		s_sim_data
 {
 	uint64_t		sim_start;
-	int				sim_is_running;
 	int				num_philos;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				num_eat_cycles;
+
+	
+
+	sem_t			*sem_forks;
+	sem_t			*sem_stdout;
+
+
+
 	int				unfinished_philos;
-	int				*forks;
 	t_philo_status	*philo_stat_tab;
 	pthread_t		*philos;
 	pthread_t		monitor;
-	pthread_mutex_t	mtx_forks;
-	pthread_mutex_t	mtx_stdout;
 }					t_sim_data;
 
 char				*ft_strchr(const char *str, int c);

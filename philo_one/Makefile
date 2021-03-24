@@ -6,7 +6,7 @@
 #    By: amalliar <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/09 23:55:29 by amalliar          #+#    #+#              #
-#    Updated: 2021/03/23 16:34:13 by amalliar         ###   ########.fr        #
+#    Updated: 2021/03/24 13:20:04 by amalliar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,6 +22,7 @@ OBJDIR     := .obj
 DEPDIR     := .dep
 
 SRCS       := main.c \
+              monitor.c \
               philo.c \
               philo_2.c \
               utils.c \
