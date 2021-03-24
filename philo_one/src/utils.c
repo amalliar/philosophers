@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 10:56:17 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/23 16:30:25 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/27 11:05:13 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,14 +79,17 @@ int				parse_args(int argc, char **argv, t_sim_data *sim_data)
 	sim_data->time_to_die = ft_atoi(argv[2]);
 	sim_data->time_to_eat = ft_atoi(argv[3]);
 	sim_data->time_to_sleep = ft_atoi(argv[4]);
+	if ((sim_data->time_to_think = (sim_data->time_to_die - \
+		sim_data->time_to_eat - sim_data->time_to_sleep) / 2) < 0)
+		sim_data->time_to_think = 0;
 	sim_data->num_eat_cycles = (argc == 6) ? ft_atoi(argv[5]) : -1;
 	return (0);
 }
 
-uint64_t		get_timestamp(void)
+unsigned long	get_timestamp(void)
 {
 	struct timeval		cur;
 
 	gettimeofday(&cur, NULL);
-	return ((uint64_t)cur.tv_sec * 1000 + cur.tv_usec / 1000);
+	return (cur.tv_sec * 1000 + cur.tv_usec / 1000);
 }

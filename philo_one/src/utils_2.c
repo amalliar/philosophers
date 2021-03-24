@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 16:28:12 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 13:33:29 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/27 11:06:13 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ static void		init_philo_stat_tab(t_sim_data *sim_data)
 		sim_data->philo_stat_tab[i].right_fork_idx = (i == 0) ? \
 			sim_data->num_philos - 1 : i - 1;
 		sim_data->philo_stat_tab[i].cur_eat_cycles = 0;
-		sim_data->philo_stat_tab[i].last_time_eaten = sim_data->sim_start;
 		sim_data->philo_stat_tab[i].sim_data = sim_data;
 		sim_data->forks[i] = AVAILABLE;
 		++i;
@@ -40,7 +39,6 @@ int				init_sim_data(t_sim_data *sim_data)
 		!(sim_data->philos = malloc(i * sizeof(pthread_t))) || \
 		!(sim_data->forks = malloc(i * sizeof(int))))
 		return (1);
-	sim_data->sim_start = get_timestamp();
 	sim_data->sim_is_running = 1;
 	sim_data->unfinished_philos = i;
 	init_philo_stat_tab(sim_data);
@@ -66,7 +64,7 @@ void			print_status(t_philo_status *philo_status, const char *msg)
 	sim_data = (t_sim_data *)philo_status->sim_data;
 	pthread_mutex_lock(&sim_data->mtx_stdout);
 	if (sim_data->sim_is_running)
-		printf("%-8llu %d %s\n", get_timestamp() - sim_data->sim_start, \
+		printf("%-8lu %d %s\n", get_timestamp() - sim_data->sim_start, \
 			philo_status->id, msg);
 	pthread_mutex_unlock(&sim_data->mtx_stdout);
 }

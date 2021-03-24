@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 11:20:20 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 13:35:34 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/27 11:04:03 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 # include <pthread.h>
 # include <stddef.h>
 # include <limits.h>
-# include <stdint.h>
 # include <sys/time.h>
 
 enum				e_fork_states
@@ -35,18 +34,19 @@ typedef struct		s_philo_status
 	int				left_fork_idx;
 	int				right_fork_idx;
 	int				cur_eat_cycles;
-	uint64_t		last_time_eaten;
+	unsigned long	last_time_eaten;
 	void			*sim_data;
 }					t_philo_status;
 
 typedef struct		s_sim_data
 {
-	uint64_t		sim_start;
+	unsigned long	sim_start;
 	int				sim_is_running;
 	int				num_philos;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
+	int				time_to_think;
 	int				num_eat_cycles;
 	int				unfinished_philos;
 	int				*forks;
@@ -61,7 +61,7 @@ char				*ft_strchr(const char *str, int c);
 int					ft_atoi(const char *str);
 int					init_sim_data(t_sim_data *sim_data);
 int					parse_args(int argc, char **argv, t_sim_data *sim_data);
-uint64_t			get_timestamp(void);
+unsigned long		get_timestamp(void);
 void				*monitor_start(void *arg);
 void				*philo_start(void *arg);
 void				clear_sim_data(t_sim_data *sim_data);

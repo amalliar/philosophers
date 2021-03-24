@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 13:22:32 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 18:17:06 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/24 18:26:13 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,9 @@
 static void		philo_think(t_philo_status *philo_status)
 {
 	t_sim_data		*sim_data;
-	int64_t			time_to_live;
 
 	sim_data = (t_sim_data *)philo_status->sim_data;
 	print_status(philo_status, "is thinking");
-	time_to_live = sim_data->time_to_die - get_timestamp() + \
-		philo_status->last_time_eaten;
-	if (time_to_live > 0)
-		usleep(time_to_live * 400);
 }
 
 static void		philo_eat(t_philo_status *philo_status)

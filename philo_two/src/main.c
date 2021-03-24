@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 11:49:38 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/24 18:36:00 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ int				start_threads(t_sim_data *sim_data)
 		if (pthread_create(&sim_data->philos[i], NULL, philo_start, \
 			&sim_data->philo_stat_tab[i]))
 			return (1);
+		usleep(100);
 		++i;
 	}
 	if (pthread_create(&sim_data->monitor, NULL, monitor_start, sim_data))

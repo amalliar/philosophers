@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 13:22:36 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/26 19:39:36 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,21 @@
 
 int				start_threads(t_sim_data *sim_data)
 {
-	int		i;
+	int			i;
 
+	sim_data->sim_start = get_timestamp();
 	i = 0;
 	while (i < sim_data->num_philos)
 	{
+		sim_data->philo_stat_tab[i].last_time_eaten = sim_data->sim_start;
 		if (pthread_create(&sim_data->philos[i], NULL, philo_start, \
 			&sim_data->philo_stat_tab[i]))
 			return (1);
 		++i;
 	}
-	if (pthread_create(&sim_data->monitor, NULL, monitor_start, sim_data))
+	if (pthread_create(&sim_data->monitor, NULL, monitor_start, sim_data) || \
+		pthread_detach(sim_data->monitor))
 		return (1);
-	pthread_detach(sim_data->monitor);
 	return (0);
 }
 
