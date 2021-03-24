@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 11:20:20 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/23 20:14:40 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/24 12:26:46 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,24 +44,21 @@ typedef struct		s_sim_data
 	int				num_eat_cycles;
 	int				unfinished_philos;
 	t_philo_status	*philo_stat_tab;
-	pthread_t		*threads;
+	pthread_t		*philos;
+	pthread_t		monitor;
 	sem_t			*sem_forks;
-	sem_t			*sem_stdout_normal;
-	sem_t			*sem_stdout_priority;
+	sem_t			*sem_stdout;
 }					t_sim_data;
 
 char				*ft_strchr(const char *str, int c);
 int					ft_atoi(const char *str);
 int					init_sim_data(t_sim_data *sim_data);
 int					parse_args(int argc, char **argv, t_sim_data *sim_data);
-int					philo_check_health(t_philo_status *philo_status);
-int					philo_eat(t_philo_status *philo_status);
-int					philo_sleep(t_philo_status *philo_status);
-int					philo_take_forks(t_philo_status *philo_status);
-int					philo_think(t_philo_status *philo_status);
 uint64_t			get_timestamp(void);
+void				*monitor_start(void *arg);
 void				*philo_start(void *arg);
 void				clear_sim_data(t_sim_data *sim_data);
+void				philo_take_forks(t_philo_status *philo_status);
 void				philo_release_forks(t_philo_status *philo_status);
 void				print_status(t_philo_status *philo_status, const char *msg);
 
