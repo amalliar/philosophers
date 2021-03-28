@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 10:56:17 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/28 10:29:42 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 16:23:05 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,23 +71,24 @@ int				parse_args(int argc, char **argv, t_sim_data *sim_data)
 {
 	if (check_args(argc, argv))
 		return (1);
-	if ((sim_data->num_philos = ft_atoi(argv[1])) < 2)
-	{
-		printf("%s: Number of philosophers must be greater than 1", argv[0]);
-		return (1);
-	}
-	sim_data->time_to_die = ft_atoi(argv[2]);
-	sim_data->time_to_eat = ft_atoi(argv[3]);
-	sim_data->time_to_sleep = ft_atoi(argv[4]);
-	if ((sim_data->time_to_think = (sim_data->time_to_die - \
-		sim_data->time_to_eat - sim_data->time_to_sleep) / 2) < 0)
+	if ((sim_data->num_philos = ft_atoi(argv[1])) < 0 || \
+		(sim_data->time_to_die = ft_atoi(argv[2])) < 0 || \
+		(sim_data->time_to_eat = ft_atoi(argv[3])) < 0 || \
+		(sim_data->time_to_sleep = ft_atoi(argv[4])) < 0 || \
+		(argc == 6 && (sim_data->num_eat_cycles = ft_atoi(argv[5])) < 0))
+		return (printf("%s: Argument too big for conversion\n", argv[0]));
+	else if (sim_data->num_philos < 2)
+		return (printf("%s: num_philos must be greater than 1\n", argv[0]));
+	if (argc != 6)
+		sim_data->num_eat_cycles = -1;
+	else if (sim_data->num_eat_cycles == 0)
+		return (printf("%s: num_eat_cycles must be greater than 0\n", argv[0]));
+	if ((sim_data->time_to_think = sim_data->time_to_die - \
+		sim_data->time_to_eat - sim_data->time_to_sleep) < 0)
 		sim_data->time_to_think = 0;
-	sim_data->num_eat_cycles = (argc == 6) ? ft_atoi(argv[5]) : -1;
 	return (0);
 }
 
-// Change the formulas accordingly and write your own usleep() that sleeps for 10-100 microsec in a loop and
-// checks the current timestamp.
 uint64_t		get_microsec(void)
 {
 	struct timeval		cur;

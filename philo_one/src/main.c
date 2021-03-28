@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/28 12:14:57 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 15:50:05 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ int				start_threads(t_sim_data *sim_data)
 			return (1);
 		i += 2;
 	}
+	microsleep(10);
 	i = 1;
 	while (i < sim_data->num_philos)
 	{
@@ -35,8 +36,7 @@ int				start_threads(t_sim_data *sim_data)
 			return (1);
 		i += 2;
 	}
-	if (pthread_create(&sim_data->monitor, NULL, monitor_start, sim_data) || \
-		pthread_detach(sim_data->monitor))
+	if (pthread_create(&sim_data->monitor, NULL, monitor_start, sim_data))
 		return (1);
 	return (0);
 }
@@ -50,6 +50,7 @@ int				main(int argc, char **argv)
 		init_sim_data(&sim_data) || start_threads(&sim_data))
 		return (1);
 	i = 0;
+	pthread_join(sim_data.monitor, NULL);
 	while (i < sim_data.num_philos)
 		pthread_join(sim_data.philos[i++], NULL);
 	clear_sim_data(&sim_data);
