@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 13:22:32 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/27 12:52:00 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 12:39:03 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static void		philo_eat(t_philo_status *philo_status)
 
 	sim_data = (t_sim_data *)philo_status->sim_data;
 	philo_take_forks(philo_status);
-	philo_status->last_time_eaten = get_timestamp();
+	philo_status->last_time_eaten = get_microsec();
 	print_status(philo_status, "is eating");
 	usleep(sim_data->time_to_eat * 1000);
 	if (++philo_status->cur_eat_cycles == sim_data->num_eat_cycles)
@@ -39,13 +39,14 @@ static void		philo_sleep(t_philo_status *philo_status)
 static void		philo_think(t_philo_status *philo_status)
 {
 	t_sim_data		*sim_data;
-	int				time_to_live;
+	uint64_t		ttl;
 
 	sim_data = (t_sim_data *)philo_status->sim_data;
 	print_status(philo_status, "is thinking");
-	time_to_live = sim_data->time_to_die - get_timestamp() \
-		+ philo_status->last_time_eaten;
-	if (time_to_live > sim_data->time_to_think)
+	ttl = get_microsec() - philo_status->last_time_eaten;
+	ttl = ((uint64_t)sim_data->time_to_die * 1000 > ttl) ? \
+		(uint64_t)sim_data->time_to_die * 1000 - ttl : 0;
+	if (ttl > (uint64_t)sim_data->time_to_think * 1000)
 		usleep(sim_data->time_to_think * 1000);
 }
 

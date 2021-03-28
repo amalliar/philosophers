@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 16:28:12 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/27 11:06:13 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 12:44:18 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,20 @@ void			print_status(t_philo_status *philo_status, const char *msg)
 	sim_data = (t_sim_data *)philo_status->sim_data;
 	pthread_mutex_lock(&sim_data->mtx_stdout);
 	if (sim_data->sim_is_running)
-		printf("%-8lu %d %s\n", get_timestamp() - sim_data->sim_start, \
+		printf("%-8lu %d %s\n", (get_microsec() - sim_data->sim_start) / 1000, \
 			philo_status->id, msg);
 	pthread_mutex_unlock(&sim_data->mtx_stdout);
+}
+
+void			microsleep(uint64_t microsec)
+{
+	uint64_t	start;
+
+	start = get_microsec();
+	while (1)
+	{
+		usleep(100);
+		if (get_microsec() - start >= microsec)
+			return ;
+	}
 }

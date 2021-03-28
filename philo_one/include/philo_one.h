@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 11:20:20 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/27 11:04:03 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 12:45:33 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <pthread.h>
 # include <stddef.h>
 # include <limits.h>
+# include <stdint.h>
 # include <sys/time.h>
 
 enum				e_fork_states
@@ -34,13 +35,13 @@ typedef struct		s_philo_status
 	int				left_fork_idx;
 	int				right_fork_idx;
 	int				cur_eat_cycles;
-	unsigned long	last_time_eaten;
+	uint64_t		last_time_eaten;
 	void			*sim_data;
 }					t_philo_status;
 
 typedef struct		s_sim_data
 {
-	unsigned long	sim_start;
+	uint64_t		sim_start;
 	int				sim_is_running;
 	int				num_philos;
 	int				time_to_die;
@@ -61,12 +62,13 @@ char				*ft_strchr(const char *str, int c);
 int					ft_atoi(const char *str);
 int					init_sim_data(t_sim_data *sim_data);
 int					parse_args(int argc, char **argv, t_sim_data *sim_data);
-unsigned long		get_timestamp(void);
+uint64_t			get_microsec(void);
 void				*monitor_start(void *arg);
 void				*philo_start(void *arg);
 void				clear_sim_data(t_sim_data *sim_data);
 void				philo_take_forks(t_philo_status *philo_status);
 void				philo_release_forks(t_philo_status *philo_status);
 void				print_status(t_philo_status *philo_status, const char *msg);
+void				microsleep(uint64_t microsec);
 
 #endif

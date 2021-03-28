@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 10:56:17 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/27 11:05:13 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 10:29:42 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,12 @@ int				parse_args(int argc, char **argv, t_sim_data *sim_data)
 	return (0);
 }
 
-unsigned long	get_timestamp(void)
+// Change the formulas accordingly and write your own usleep() that sleeps for 10-100 microsec in a loop and
+// checks the current timestamp.
+uint64_t		get_microsec(void)
 {
 	struct timeval		cur;
 
 	gettimeofday(&cur, NULL);
-	return (cur.tv_sec * 1000 + cur.tv_usec / 1000);
+	return (cur.tv_sec * (uint64_t)1000000 + cur.tv_usec);
 }

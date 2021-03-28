@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/27 13:44:14 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 12:14:57 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int				start_threads(t_sim_data *sim_data)
 {
 	int			i;
 
-	sim_data->sim_start = get_timestamp();
+	sim_data->sim_start = get_microsec();
 	i = 0;
 	while (i < sim_data->num_philos)
 	{
