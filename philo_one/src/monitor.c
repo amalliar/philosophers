@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 13:20:22 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/28 16:26:39 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 20:36:40 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ static int		check_health(t_philo_status *philo_status, uint64_t *min_ttl)
 		sim_data->sim_is_running = 0;
 		pthread_mutex_unlock(&philo_status->mtx_last_time_eaten);
 		pthread_mutex_lock(&sim_data->mtx_stdout);
-		printf("%-8lu %d died\n", \
-			(get_microsec() - sim_data->sim_start) / 1000, philo_status->id);
+		printf("%-8lu %d died\n", (unsigned long)((get_microsec() - \
+			sim_data->sim_start) / 1000), philo_status->id);
 		pthread_mutex_unlock(&sim_data->mtx_stdout);
 		return (1);
 	}

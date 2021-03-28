@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 11:37:37 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/28 17:16:05 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 20:38:00 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,8 @@ static int		check_health(t_philo_status *philo_status, uint64_t *min_ttl)
 		sim_data->sim_is_running = 0;
 		sem_post(sim_data->sem_last_time_eaten);
 		sem_wait(sim_data->sem_stdout);
-		printf("%-8lu %d died\n", \
-			(get_microsec() - sim_data->sim_start) / 1000, philo_status->id);
+		printf("%-8lu %d died\n", (unsigned long)((get_microsec() - \
+			sim_data->sim_start) / 1000), philo_status->id);
 		sem_post(sim_data->sem_stdout);
 		return (1);
 	}

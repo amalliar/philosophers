@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/23 16:28:12 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/28 19:31:24 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 20:41:49 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,8 +69,8 @@ void			print_status(t_philo_status *philo_status, const char *msg)
 	sim_data = (t_sim_data *)philo_status->sim_data;
 	sem_wait(sim_data->sem_stdout);
 	if (sim_data->sim_is_running)
-		printf("%-8lu %d %s\n", (get_microsec() - sim_data->sim_start) / 1000, \
-			philo_status->id, msg);
+		printf("%-8lu %d %s\n", (unsigned long)((get_microsec() - \
+			sim_data->sim_start) / 1000), philo_status->id, msg);
 	sem_post(sim_data->sem_stdout);
 }
 
