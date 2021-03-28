@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 18:36:00 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 18:09:00 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,30 @@
 
 int				start_threads(t_sim_data *sim_data)
 {
-	int		i;
+	int			i;
 
+	sim_data->sim_start = get_microsec();
 	i = 0;
 	while (i < sim_data->num_philos)
 	{
+		sim_data->philo_stat_tab[i].last_time_eaten = sim_data->sim_start;
 		if (pthread_create(&sim_data->philos[i], NULL, philo_start, \
 			&sim_data->philo_stat_tab[i]))
 			return (1);
-		usleep(100);
-		++i;
+		i += 2;
+	}
+	microsleep(10);
+	i = 1;
+	while (i < sim_data->num_philos)
+	{
+		sim_data->philo_stat_tab[i].last_time_eaten = sim_data->sim_start;
+		if (pthread_create(&sim_data->philos[i], NULL, philo_start, \
+			&sim_data->philo_stat_tab[i]))
+			return (1);
+		i += 2;
 	}
 	if (pthread_create(&sim_data->monitor, NULL, monitor_start, sim_data))
 		return (1);
-	pthread_detach(sim_data->monitor);
 	return (0);
 }
 
@@ -39,6 +49,7 @@ int				main(int argc, char **argv)
 	if (parse_args(argc, argv, &sim_data) || \
 		init_sim_data(&sim_data) || start_threads(&sim_data))
 		return (1);
+	pthread_join(sim_data.monitor, NULL);
 	i = 0;
 	while (i < sim_data.num_philos)
 		pthread_join(sim_data.philos[i++], NULL);

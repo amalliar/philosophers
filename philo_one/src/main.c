@@ -6,7 +6,7 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/23 08:04:46 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/28 15:50:05 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 18:08:45 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,8 +49,8 @@ int				main(int argc, char **argv)
 	if (parse_args(argc, argv, &sim_data) || \
 		init_sim_data(&sim_data) || start_threads(&sim_data))
 		return (1);
-	i = 0;
 	pthread_join(sim_data.monitor, NULL);
+	i = 0;
 	while (i < sim_data.num_philos)
 		pthread_join(sim_data.philos[i++], NULL);
 	clear_sim_data(&sim_data);
