@@ -6,37 +6,43 @@
 /*   By: amalliar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/24 11:37:37 by amalliar          #+#    #+#             */
-/*   Updated: 2021/03/24 12:46:01 by amalliar         ###   ########.fr       */
+/*   Updated: 2021/03/28 18:54:13 by amalliar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_two.h"
+#include "philo_three.h"
 
-void		*monitor_start(void *arg)
+static void		check_health(t_philo_status *philo_status, uint64_t *ttl)
 {
 	t_sim_data		*sim_data;
-	t_philo_status	*philo_stat_tab;
-	int				i;
 
-	sim_data = (t_sim_data *)arg;
-	philo_stat_tab = sim_data->philo_stat_tab;
+	sim_data = (t_sim_data *)philo_status->sim_data;
+	sem_wait(sim_data->sem_last_time_eaten);
+	*ttl = get_microsec() - philo_status->last_time_eaten;
+	*ttl = ((uint64_t)sim_data->time_to_die * 1000 > *ttl) ? \
+		(uint64_t)sim_data->time_to_die * 1000 - *ttl : 0;
+	if (*ttl == 0)
+	{
+		sem_wait(sim_data->sem_stdout);
+		printf("%-8lu %d died\n", \
+			(get_microsec() - sim_data->sim_start) / 1000, philo_status->id);
+		kill(0, 9);
+	}
+	sem_post(sim_data->sem_last_time_eaten);
+}
+
+void			*monitor_start(void *arg)
+{
+	t_sim_data		*sim_data;
+	t_philo_status	*philo_status;
+	uint64_t		ttl;
+
+	philo_status = (t_philo_status *)arg;
+	sim_data = (t_sim_data *)philo_status->sim_data;
 	while (1)
 	{
-		i = 0;
-		while (i < sim_data->num_philos)
-		{
-			if (sim_data->time_to_die - get_timestamp() + \
-				philo_stat_tab[i].last_time_eaten <= 0)
-			{
-				sim_data->sim_is_running = 0;
-				sem_wait(sim_data->sem_stdout);
-				printf("%-8llu %d died\n", get_timestamp() - \
-					sim_data->sim_start, philo_stat_tab[i].id);
-				sem_post(sim_data->sem_stdout);
-				return (NULL);
-			}
-			++i;
-		}
-		usleep(100);
+		ttl = sim_data->time_to_die;
+		check_health(philo_status, &ttl);
+		microsleep(ttl);
 	}
 }

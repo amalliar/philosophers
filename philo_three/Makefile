@@ -6,7 +6,7 @@
 #    By: amalliar <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/02/09 23:55:29 by amalliar          #+#    #+#              #
-#    Updated: 2021/03/24 13:51:46 by amalliar         ###   ########.fr        #
+#    Updated: 2021/03/28 17:38:56 by amalliar         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -38,16 +38,16 @@ MAKEFLAGS  = -j 4 --output-sync=recurse --no-print-directory
 # when running in parallel (-j flag).
 POST_COMPILE = mv -f $(DEPDIR)/$*.tmp $(DEPDIR)/$*.d && touch $@
 
-# Define some colors for echo:
+# Define some colors for echo -e:
 LGREEN     := \033[1;32m
 WHITE      := \033[1;37m
 NOC        := \033[0m
 
 all: $(NAME)
 $(NAME): $(OBJS)
-	@echo "$(LGREEN)Linking executable $(NAME)$(NOC)"
+	@echo -e "$(LGREEN)Linking executable $(NAME)$(NOC)"
 	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -o $@
-	@echo "Built target $(NAME)"
+	@echo -e "Built target $(NAME)"
 .PHONY: all
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(DEPDIR)/%.d | $(OBJDIR) $(DEPDIR)
@@ -61,14 +61,14 @@ $(DEPDIR)/%.d: ;
 .PRECIOUS: $(DEPDIR)/%.d
 
 clean:
-	@echo "$(WHITE)Removing C object files...$(NOC)"
+	@echo -e "$(WHITE)Removing C object files...$(NOC)"
 	@-rm -rf $(OBJDIR)
-	@echo "$(WHITE)Removing make dependency files...$(NOC)"
+	@echo -e "$(WHITE)Removing make dependency files...$(NOC)"
 	@-rm -rf $(DEPDIR)
 .PHONY: clean
 
 fclean: clean
-	@echo "$(WHITE)Removing executable $(NAME)$(NOC)"
+	@echo -e "$(WHITE)Removing executable $(NAME)$(NOC)"
 	@-rm -f $(NAME)
 .PHONY: fclean
 
@@ -78,11 +78,11 @@ re:
 .PHONY: re
 
 help:
-	@echo "The following are some of the valid targets for this Makefile:"
-	@echo "... all (the default if no target is provided)"
-	@echo "... clean"
-	@echo "... fclean"
-	@echo "... re"
+	@echo -e "The following are some of the valid targets for this Makefile:"
+	@echo -e "... all (the default if no target is provided)"
+	@echo -e "... clean"
+	@echo -e "... fclean"
+	@echo -e "... re"
 .PHONY: help
 
 # Do not include dependency files if the current goal is
